@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}Interview Preparation Report - {{ project.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+
+  <!-- Header & Export Actions -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <a href="{{ url_for('projects.dashboard', project_id=project.id) }}" class="btn btn-sm btn-outline-secondary">
+          &larr; Dashboard
+        </a>
+        <h2 class="fw-bold mb-0">Interview Readiness Report</h2>
+      </div>
+      <p class="text-secondary small mb-0">
+        Performance debrief for <strong>{{ project.name }}</strong> &bull; Completed {{ interview.completed_at.strftime('%b %d, %Y') if interview.completed_at else 'Today' }}
+      </p>
+    </div>
+    <div class="d-flex gap-2">
+      <button id="btn-print-report" class="btn btn-outline-secondary">
+        <i class="bi bi-printer me-1"></i> Print / Save PDF
+      </button>
+      <form action="{{ url_for('interview.start_interview', project_id=project.id) }}" method="POST">
+        <button type="submit" class="btn btn-primary">
+          <i class="bi bi-arrow-repeat me-1"></i> Retake Interview
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 1. OVERALL READINESS SCORE CARD -->
+  <div class="card p-4 p-md-5 bg-white border shadow-sm mb-4">
+    <div class="row align-items-center">
+      <div class="col-md-4 text-center border-end-md pb-4 pb-md-0">
+        <div class="display-3 fw-bold text-primary mb-1">
+          {{ report.get('readiness_score', 80) }}%
+        </div>
+        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 fs-6 rounded-pill">
+          {{ report.get('readiness_verdict', 'Interview Ready with Polish') }}
+        </span>
+        <div class="small text-muted mt-2">
+          Based on {{ answers|length }} questions answered
+        </div>
+      </div>
+      <div class="col-md-8 ps-md-4">
+        <h5 class="fw-bold text-dark mb-2">Executive Summary</h5>
+        <p class="text-secondary leading-relaxed mb-0">
+          {{ report.get('readiness_summary', 'You demonstrated solid knowledge of your core technology stack.') }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. STRONG AREAS VS AREAS TO IMPROVE -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-6">
+      <div class="card p-4 h-100 bg-white border border-success-subtle">
+        <h5 class="fw-bold text-success mb-3">
+          <i class="bi bi-check-circle-fill me-2"></i> Strong Areas
+        </h5>
+        <ul class="list-group list-group-flush small">
+          {% for strong in report.get('strong_areas', []) %}
+            <li class="list-group-item px-0 text-dark">
+              <i class="bi bi-check2 text-success me-2 fs-5 align-middle"></i> {{ strong }}
+            </li>
+          {% else %}
+            <li class="list-group-item px-0 text-muted">Core workflow ownership</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card p-4 h-100 bg-white border border-danger-subtle">
+        <h5 class="fw-bold text-danger mb-3">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i> Areas to Improve
+        </h5>
+        <ul class="list-group list-group-flush small">
+          {% for gap in report.get('areas_to_improve', []) %}
+            <li class="list-group-item px-0 text-dark">
+              <i class="bi bi-arrow-right-short text-danger me-2 fs-5 align-middle"></i> {{ gap }}
+            </li>
+          {% else %}
+            <li class="list-group-item px-0 text-muted">Defensive database and scaling limits</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. STRUGGLED QUESTIONS -->
+  {% if report.get('struggled_questions') %}
+    <div class="card p-4 bg-white border mb-4 shadow-sm">
+      <h5 class="fw-bold text-dark mb-3">
+        <i class="bi bi-question-diamond-fill text-warning me-2"></i> Questions You Struggled With
+      </h5>
+      <div class="vstack gap-3">
+        {% for sq in report.get('struggled_questions', []) %}
+          <div class="p-3 bg-light rounded border">
+            <h6 class="fw-bold text-primary mb-1">"{{ sq.question }}"</h6>
+            <div class="small text-danger mb-2"><strong>Issue:</strong> {{ sq.why_struggled }}</div>
+            <div class="small text-success"><strong>Ideal Approach:</strong> {{ sq.ideal_direction }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- 4. CONCEPTS TO REVISE -->
+  <div class="card p-4 bg-white border mb-4 shadow-sm">
+    <h5 class="fw-bold text-dark mb-3">
+      <i class="bi bi-journal-bookmark-fill text-primary me-2"></i> Concepts to Revise Before Your Interview
+    </h5>
+    <div class="row g-3">
+      {% for cr in report.get('concepts_to_revise', []) %}
+        <div class="col-md-4">
+          <div class="p-3 bg-light rounded border h-100">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <strong class="text-dark">{{ cr.concept }}</strong>
+              <span class="badge {% if cr.priority == 'High' %}bg-danger{% else %}bg-primary{% endif %}">
+                {{ cr.priority }} Priority
+              </span>
+            </div>
+            <p class="small text-secondary mb-0">{{ cr.revision_guide }}</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- 5. INTERVIEW TRAPS -->
+  <div class="card p-4 bg-white border mb-4 border-warning-subtle shadow-sm">
+    <h5 class="fw-bold text-dark mb-3">
+      <i class="bi bi-cone-striped text-warning me-2"></i> Potential Interview Traps
+    </h5>
+    <div class="vstack gap-3">
+      {% for trap in report.get('interview_traps', []) %}
+        <div class="p-3 bg-warning-subtle bg-opacity-25 rounded border border-warning-subtle">
+          <div class="fw-bold text-danger mb-1">Claim: "{{ trap.trap_claim }}"</div>
+          <div class="small text-secondary mb-2"><strong>The Danger:</strong> {{ trap.danger }}</div>
+          <div class="small text-success"><strong>Defense Strategy:</strong> {{ trap.defense_strategy }}</div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- 6. RECOMMENDED PREPARATION ORDER & FINAL ADVICE -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-6">
+      <div class="card p-4 h-100 bg-white border shadow-sm">
+        <h5 class="fw-bold text-primary mb-3">
+          <i class="bi bi-sort-numeric-down me-2"></i> Recommended Revision Sequence
+        </h5>
+        <ol class="ps-3 mb-0 text-secondary leading-relaxed">
+          {% for step in report.get('preparation_order', []) %}
+            <li class="mb-2">{{ step }}</li>
+          {% endfor %}
+        </ol>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card p-4 h-100 bg-white border shadow-sm">
+        <h5 class="fw-bold text-dark mb-3">
+          <i class="bi bi-chat-heart-fill text-danger me-2"></i> Practical Interview Day Advice
+        </h5>
+        <p class="text-secondary small leading-relaxed mb-0">
+          {{ report.get('final_advice', 'Focus on authentic communication and honest problem-solving.') }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Answers Transcript Drawer -->
+  <div class="card p-4 bg-white border mb-4 shadow-sm">
+    <div class="d-flex justify-content-between align-items-center">
+      <h5 class="fw-bold mb-0">Full Question & Answer Transcripts</h5>
+      <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#transcriptCollapse">
+        Toggle Transcripts ({{ answers|length }})
+      </button>
+    </div>
+
+    <div class="collapse mt-3" id="transcriptCollapse">
+      <div class="vstack gap-3">
+        {% for ans in answers %}
+          <div class="p-3 bg-light rounded border">
+            <div class="d-flex justify-content-between mb-1">
+              <strong class="text-primary">Q{{ loop.index }}: {{ ans.question.question }}</strong>
+              <span class="badge bg-secondary">{{ ans.score }}/100</span>
+            </div>
+            <div class="text-dark small mb-2"><strong>Your Answer:</strong> {{ ans.student_answer }}</div>
+            <div class="text-secondary small"><strong>Feedback:</strong> {{ ans.feedback }}</div>
+            {% if ans.interviewer_followup %}
+              <div class="text-info small mt-1"><strong>Follow-up Asked:</strong> {{ ans.interviewer_followup }}</div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

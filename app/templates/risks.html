@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Resume Risk Areas - {{ project.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <a href="{{ url_for('projects.dashboard', project_id=project.id) }}" class="btn btn-sm btn-outline-secondary">
+          &larr; Dashboard
+        </a>
+        <h2 class="fw-bold mb-0">Interview Risk Areas & Defense</h2>
+      </div>
+      <p class="text-secondary small mb-0">
+        Claims on your resume that interviewers are most likely to aggressively test.
+      </p>
+    </div>
+  </div>
+
+  <div class="alert alert-warning d-flex align-items-center mb-4" role="alert">
+    <i class="bi bi-exclamation-triangle-fill fs-4 me-3 text-warning"></i>
+    <div>
+      <strong>Golden Rule for Campus Placement:</strong> Never write a buzzword on your resume unless you can explain its fundamental trade-offs, its specific role in your codebase, and how it handles failure.
+    </div>
+  </div>
+
+  <div class="vstack gap-4">
+    {% for risk in risks %}
+      <div class="card p-4 bg-white border risk-alert-card">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <h5 class="fw-bold text-danger mb-0"><i class="bi bi-shield-x me-1"></i> {{ risk.claim }}</h5>
+          <span class="badge bg-danger">Scrutiny Risk</span>
+        </div>
+        <p class="text-secondary mb-3"><strong>Why interviewers check:</strong> {{ risk.risk_reason }}</p>
+        
+        <div class="bg-light p-3 rounded border mb-3">
+          <span class="fw-bold text-primary small d-block mb-2"><i class="bi bi-chat-dots-fill me-1"></i> Probing Questions Interviewers Will Ask:</span>
+          <ul class="mb-0 ps-3 text-dark">
+            {% for q in risk.probing_questions %}
+              <li class="mb-1">{{ q }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div class="p-3 bg-white rounded border border-success-subtle">
+          <strong class="text-success"><i class="bi bi-check-circle-fill me-1"></i> How to Defend This (Or Fix on Resume):</strong>
+          <p class="text-secondary small mb-0 mt-1">{{ risk.recommendation }}</p>
+        </div>
+      </div>
+    {% else %}
+      <div class="card p-5 text-center bg-white border">
+        <h6>No high-risk claims flagged for this project.</h6>
+      </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,311 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.name }} - Preparation Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+
+  <!-- Top Header with Actions -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <h2 class="fw-bold mb-0">{{ project.name }}</h2>
+        <span class="badge bg-light text-dark border">{{ project.role }}</span>
+      </div>
+      <p class="text-secondary small mb-0">
+        <i class="bi bi-stack me-1"></i> <strong>Stack:</strong> {{ project.technologies }}
+      </p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <form action="{{ url_for('interview.start_interview', project_id=project.id) }}" method="POST" class="d-inline">
+        <button type="submit" class="btn btn-primary d-inline-flex align-items-center shadow-sm">
+          <i class="bi bi-mic-fill me-1"></i> Start Mock Interview
+        </button>
+      </form>
+      <a href="{{ url_for('projects.questions_view', project_id=project.id) }}" class="btn btn-outline-secondary">
+        <i class="bi bi-question-circle me-1"></i> All Questions
+      </a>
+      <a href="{{ url_for('projects.learn_view', project_id=project.id) }}" class="btn btn-outline-secondary">
+        <i class="bi bi-book me-1"></i> Learn Mode
+      </a>
+    </div>
+  </div>
+
+  <!-- Preparation Progress Widget -->
+  <div class="card p-4 bg-white border mb-4 shadow-sm">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <span class="fw-bold text-uppercase small text-secondary">Interview Readiness Progress</span>
+      <span class="fw-bold text-primary fs-5">{{ stats.readiness_percent }}%</span>
+    </div>
+    <div class="progress-container mb-3">
+      <div class="progress-bar-custom" style="width: {{ stats.readiness_percent }}%;"></div>
+    </div>
+    <div class="row g-2 text-center text-md-start small text-secondary">
+      <div class="col-6 col-md-3">
+        <i class="bi bi-check2-square text-primary me-1"></i> Questions: <strong>{{ stats.answered_questions }}/{{ stats.total_questions }}</strong>
+      </div>
+      <div class="col-6 col-md-3">
+        <i class="bi bi-person-lines-fill text-success me-1"></i> Mock Interviews: <strong>{{ stats.completed_interviews }}</strong>
+      </div>
+      <div class="col-6 col-md-3">
+        <i class="bi bi-lightbulb text-warning me-1"></i> Topics to Learn: <strong>{{ stats.learning_topics_count }}</strong>
+      </div>
+      <div class="col-6 col-md-3">
+        <i class="bi bi-shield-exclamation text-danger me-1"></i> Resume Risks: <strong>{{ stats.risk_areas_count }}</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Tabs for Dashboard -->
+  <ul class="nav nav-pills mb-4 gap-2 bg-light p-2 rounded-3 border" id="dashboardTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active fw-semibold" id="explanations-tab" data-bs-toggle="pill" data-bs-target="#explanations" type="button" role="tab">
+        <i class="bi bi-chat-quote me-1"></i> Project Explanations
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link fw-semibold" id="architecture-tab" data-bs-toggle="pill" data-bs-target="#architecture" type="button" role="tab">
+        <i class="bi bi-diagram-3 me-1"></i> Architecture & Unstated Gaps
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link fw-semibold text-danger" id="risks-tab" data-bs-toggle="pill" data-bs-target="#risks" type="button" role="tab">
+        <i class="bi bi-exclamation-triangle-fill me-1"></i> Resume Risks ({{ project.risk_areas|length }})
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link fw-semibold" id="interviews-tab" data-bs-toggle="pill" data-bs-target="#interviews" type="button" role="tab">
+        <i class="bi bi-clock-history me-1"></i> Past Interviews ({{ project.interviews.count() }})
+      </button>
+    </li>
+  </ul>
+
+  <!-- Tab Contents -->
+  <div class="tab-content" id="dashboardTabsContent">
+
+    <!-- 1. EXPLANATIONS TAB -->
+    <div class="tab-pane fade show active" id="explanations" role="tabpanel">
+      <div class="alert alert-info d-flex align-items-center mb-4" role="alert">
+        <i class="bi bi-info-circle-fill fs-5 me-2"></i>
+        <div>
+          <strong>Practice Explaining Out Loud:</strong> Interviewers will ask you to explain your project in varying levels of depth. Switch between these formats to build fluid verbal delivery.
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <!-- 30-Second Elevator Pitch -->
+        <div class="col-lg-6">
+          <div class="card h-100 p-4 border">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="badge bg-primary">30-Second Elevator Pitch</span>
+              <small class="text-muted"><i class="bi bi-stopwatch"></i> ~50 words</small>
+            </div>
+            <h6 class="fw-bold text-dark">"Tell me about your project in one sentence."</h6>
+            <p class="text-secondary small leading-relaxed mt-2 mb-0">
+              {{ project.explanations.get('thirty_second', 'Analysis pending...') }}
+            </p>
+          </div>
+        </div>
+
+        <!-- 1-Minute Pitch -->
+        <div class="col-lg-6">
+          <div class="card h-100 p-4 border">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="badge bg-info text-dark">1-Minute Technical Overview</span>
+              <small class="text-muted"><i class="bi bi-stopwatch"></i> ~120 words</small>
+            </div>
+            <h6 class="fw-bold text-dark">Standard Interview Introduction</h6>
+            <p class="text-secondary small leading-relaxed mt-2 mb-0">
+              {{ project.explanations.get('one_minute', 'Analysis pending...') }}
+            </p>
+          </div>
+        </div>
+
+        <!-- 2-Minute Deep Dive -->
+        <div class="col-12">
+          <div class="card p-4 border">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="badge bg-success">2-Minute Deep Technical Walkthrough</span>
+              <small class="text-muted"><i class="bi bi-stopwatch"></i> ~250 words</small>
+            </div>
+            <h6 class="fw-bold text-dark">Comprehensive Architectural Response</h6>
+            <p class="text-secondary small leading-relaxed mt-2 mb-0">
+              {{ project.explanations.get('two_minute', 'Analysis pending...') }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Technical vs Simple Explanation -->
+        <div class="col-lg-6">
+          <div class="card h-100 p-4 border">
+            <span class="badge bg-dark mb-2 align-self-start">Under-the-Hood Technical</span>
+            <h6 class="fw-bold">How it Works Technically</h6>
+            <p class="text-secondary small leading-relaxed mt-2 mb-0">
+              {{ project.explanations.get('technical', 'Analysis pending...') }}
+            </p>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card h-100 p-4 border">
+            <span class="badge bg-secondary mb-2 align-self-start">Layman / Recruiter Pitch</span>
+            <h6 class="fw-bold">Explaining to a Non-Technical Recruiter</h6>
+            <p class="text-secondary small leading-relaxed mt-2 mb-0">
+              {{ project.explanations.get('simple', 'Analysis pending...') }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. ARCHITECTURE & UNSTATED GAPS TAB -->
+    <div class="tab-pane fade" id="architecture" role="tabpanel">
+      <div class="row g-4">
+        <div class="col-lg-7">
+          <div class="card p-4 border h-100">
+            <h5 class="fw-bold mb-3"><i class="bi bi-diagram-3 text-primary me-2"></i>Inferred System Architecture</h5>
+            <div class="p-3 bg-light rounded border mb-3">
+              <code>{{ project.analysis.get('architecture_summary', 'Standard 3-Tier Layered Architecture') }}</code>
+            </div>
+            <h6 class="fw-bold small text-uppercase text-secondary">Core Problem Being Solved:</h6>
+            <p class="text-secondary small">{{ project.analysis.get('problem_solved', project.description) }}</p>
+
+            <h6 class="fw-bold small text-uppercase text-secondary mt-3">Project Objective:</h6>
+            <p class="text-secondary small mb-0">{{ project.analysis.get('objective', project.name) }}</p>
+          </div>
+        </div>
+
+        <div class="col-lg-5">
+          <div class="card p-4 border h-100 border-warning-subtle bg-warning-subtle bg-opacity-25">
+            <h5 class="fw-bold text-dark mb-2">
+              <i class="bi bi-shield-exclamation text-warning me-2"></i>Unstated Assumptions & Gaps
+            </h5>
+            <p class="text-secondary small mb-3">
+              Items not specified in your project input. Interviewers WILL ask about these, so prepare your answers!
+            </p>
+            <ul class="list-group list-group-flush bg-transparent small">
+              {% for gap in project.analysis.get('unstated_assumptions', []) %}
+                <li class="list-group-item bg-transparent px-0 text-dark">
+                  <i class="bi bi-arrow-right-short text-warning fs-5 align-middle"></i> {{ gap }}
+                </li>
+              {% else %}
+                <li class="list-group-item bg-transparent px-0 text-muted">No obvious omissions detected.</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. RESUME RISKS TAB -->
+    <div class="tab-pane fade" id="risks" role="tabpanel">
+      <div class="card p-4 border border-danger-subtle mb-4 bg-danger-subtle bg-opacity-10">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <i class="bi bi-shield-slash-fill text-danger fs-4"></i>
+          <h5 class="fw-bold text-danger mb-0">Interview Risk Areas</h5>
+        </div>
+        <p class="text-secondary small mb-0">
+          Claims from your project that can trap you if an interviewer digs deep. We do NOT invent claims for you &mdash; these highlight where candidates most frequently get caught off guard.
+        </p>
+      </div>
+
+      <div class="vstack gap-3">
+        {% for risk in project.risk_areas %}
+          <div class="card p-4 border risk-alert-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <h6 class="fw-bold text-danger mb-0"><i class="bi bi-exclamation-circle me-1"></i> {{ risk.claim }}</h6>
+              <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Scrutiny Risk</span>
+            </div>
+            <p class="text-secondary small mb-3"><strong>Why interviewers check:</strong> {{ risk.risk_reason }}</p>
+            
+            <div class="bg-white p-3 rounded border mb-3">
+              <span class="fw-bold text-primary small d-block mb-1">Probing Questions to Expect:</span>
+              <ul class="mb-0 ps-3 small text-dark">
+                {% for q in risk.probing_questions %}
+                  <li>{{ q }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+
+            <div class="small text-muted">
+              <strong><i class="bi bi-lightbulb text-warning me-1"></i> Recommendation:</strong> {{ risk.recommendation }}
+            </div>
+          </div>
+        {% else %}
+          <div class="card p-4 text-center text-muted">
+            No severe resume risk claims flagged.
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- 4. PAST INTERVIEWS TAB -->
+    <div class="tab-pane fade" id="interviews" role="tabpanel">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0">Mock Interview History</h5>
+        <form action="{{ url_for('interview.start_interview', project_id=project.id) }}" method="POST">
+          <button type="submit" class="btn btn-sm btn-primary">
+            <i class="bi bi-play-fill"></i> New Session
+          </button>
+        </form>
+      </div>
+
+      {% if project.interviews.count() > 0 %}
+        <div class="table-responsive bg-white rounded border">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light small">
+              <tr>
+                <th>Session ID</th>
+                <th>Status</th>
+                <th>Date Started</th>
+                <th>Avg Score</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for iv in project.recent_interviews %}
+                <tr>
+                  <td><strong>#{{ iv.id }}</strong></td>
+                  <td>
+                    {% if iv.status == 'completed' %}
+                      <span class="badge bg-success">Completed</span>
+                    {% else %}
+                      <span class="badge bg-warning text-dark">In Progress</span>
+                    {% endif %}
+                  </td>
+                  <td class="small text-secondary">{{ iv.started_at.strftime('%b %d, %Y %H:%M') }}</td>
+                  <td><strong>{{ iv.overall_score }} / 100</strong></td>
+                  <td>
+                    {% if iv.status == 'completed' %}
+                      <a href="{{ url_for('interview.report_view', interview_id=iv.id) }}" class="btn btn-sm btn-outline-primary">
+                        View Report
+                      </a>
+                    {% else %}
+                      <a href="{{ url_for('interview.session_view', interview_id=iv.id) }}" class="btn btn-sm btn-primary">
+                        Resume Session
+                      </a>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="card p-5 text-center bg-white border">
+          <i class="bi bi-mic text-secondary fs-1 mb-2"></i>
+          <h6>No Mock Interviews Attempted Yet</h6>
+          <p class="text-secondary small mb-3">Practice answering realistic questions under simulated interview conditions.</p>
+          <div>
+            <form action="{{ url_for('interview.start_interview', project_id=project.id) }}" method="POST">
+              <button type="submit" class="btn btn-primary">Start First Mock Interview</button>
+            </form>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

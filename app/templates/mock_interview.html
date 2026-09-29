@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}Mock Interview Session - {{ project.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+  <div class="row justify-content-center">
+    <div class="col-lg-9">
+
+      <!-- Top Header & Session Bar -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <span class="badge bg-danger text-white me-2"><i class="bi bi-record-circle-fill me-1"></i> Live Interview Simulation</span>
+          <span class="text-secondary small">Project: <strong>{{ project.name }}</strong></span>
+        </div>
+        <div>
+          <a href="{{ url_for('interview.finish_interview', interview_id=interview.id) }}" class="btn btn-sm btn-outline-danger" 
+             onclick="return confirm('Are you sure you want to end this interview session now and view your report?');">
+            End & View Report
+          </a>
+        </div>
+      </div>
+
+      <!-- Question Counter & Progress Bar -->
+      <div class="card p-3 bg-white border mb-4 shadow-sm">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="fw-bold small text-uppercase text-secondary">
+            Question {{ question_number }} of {{ interview.total_questions }}
+          </span>
+          <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+            Category: {{ question.category.replace('_', ' ') | title }} &bull; {{ question.difficulty | title }}
+          </span>
+        </div>
+        <div class="progress-container">
+          <div class="progress-bar-custom" style="width: {{ ((question_number - 1) / interview.total_questions) * 100 }}%;"></div>
+        </div>
+      </div>
+
+      <!-- Previous Answer Feedback Panel (if user just submitted an answer) -->
+      {% if last_answer %}
+        <div class="card p-4 mb-4 border feedback-card shadow-sm">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="fw-bold text-success mb-0">
+              <i class="bi bi-clipboard-check-fill me-1"></i> Feedback on Your Previous Answer
+            </h6>
+            <span class="badge bg-success fs-6">Score: {{ last_answer.score }}/100</span>
+          </div>
+
+          <p class="text-dark small mb-3">
+            <strong>Evaluation:</strong> {{ last_answer.feedback }}
+          </p>
+
+          <!-- Scores Breakdown -->
+          <div class="row g-2 mb-3 text-center small">
+            <div class="col-3">
+              <div class="p-2 bg-white rounded border">
+                <span class="text-secondary d-block">Clarity</span>
+                <strong class="text-primary">{{ last_answer.clarity_score }}%</strong>
+              </div>
+            </div>
+            <div class="col-3">
+              <div class="p-2 bg-white rounded border">
+                <span class="text-secondary d-block">Technical</span>
+                <strong class="text-primary">{{ last_answer.technical_score }}%</strong>
+              </div>
+            </div>
+            <div class="col-3">
+              <div class="p-2 bg-white rounded border">
+                <span class="text-secondary d-block">Completeness</span>
+                <strong class="text-primary">{{ last_answer.completeness_score }}%</strong>
+              </div>
+            </div>
+            <div class="col-3">
+              <div class="p-2 bg-white rounded border">
+                <span class="text-secondary d-block">Relevance</span>
+                <strong class="text-primary">{{ last_answer.relevance_score }}%</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Good Points & Missing Points -->
+          <div class="row g-2 small">
+            {% if last_answer.good_points %}
+              <div class="col-md-6">
+                <div class="p-2 bg-white rounded border h-100">
+                  <strong class="text-success"><i class="bi bi-check2 me-1"></i> What You Did Well:</strong>
+                  <ul class="mb-0 ps-3 mt-1 text-secondary">
+                    {% for pt in last_answer.good_points %}
+                      <li>{{ pt }}</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </div>
+            {% endif %}
+
+            {% if last_answer.missing_points %}
+              <div class="col-md-6">
+                <div class="p-2 bg-white rounded border h-100">
+                  <strong class="text-danger"><i class="bi bi-exclamation-circle me-1"></i> Missing / Areas to Deepen:</strong>
+                  <ul class="mb-0 ps-3 mt-1 text-secondary">
+                    {% for pt in last_answer.missing_points %}
+                      <li>{{ pt }}</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+
+          {% if last_answer.correction %}
+            <div class="mt-3 p-2 bg-light rounded border small">
+              <strong><i class="bi bi-lightbulb text-warning me-1"></i> Interviewer Tip:</strong>
+              <span class="text-secondary">{{ last_answer.correction }}</span>
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      <!-- Current Question Card -->
+      <div class="interview-box shadow-sm mb-4">
+        <div class="d-flex align-items-center mb-3">
+          <div class="badge bg-dark me-2 px-3 py-2"><i class="bi bi-robot me-1"></i> AI Technical Interviewer</div>
+          <span class="text-muted small">Speaking as Senior Engineering Lead</span>
+        </div>
+
+        <div class="interviewer-bubble">
+          <h4 class="fw-bold text-dark mb-0 leading-snug">
+            "{{ question.question }}"
+          </h4>
+        </div>
+
+        <form id="mock-interview-form" method="POST" action="{{ url_for('interview.submit_answer', interview_id=interview.id) }}">
+          <input type="hidden" name="question_id" value="{{ question.id }}">
+
+          <div class="mb-3">
+            <label for="student-answer-input" class="form-label fw-semibold text-secondary d-flex justify-content-between align-items-center">
+              <span>Your Spoken/Written Answer:</span>
+              <span class="small text-muted">Explain naturally as you would in an interview</span>
+            </label>
+            <textarea class="form-control" id="student-answer-input" name="student_answer" rows="6" 
+                      placeholder="Structure your answer: State what it is, why you chose/used it, how it works in your project, and any trade-offs or challenges you faced..."
+                      required minlength="5"></textarea>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+              <span class="form-text small text-muted">
+                <i class="bi bi-shield-check text-success me-1"></i> Evaluated on technical correctness, clarity, and project depth.
+              </span>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center mt-4 pt-2 border-top">
+            <span class="text-muted small">
+              <i class="bi bi-info-circle me-1"></i> Take your time to think through your answer.
+            </span>
+            <button type="submit" id="btn-submit-answer" class="btn btn-primary btn-lg px-4 fw-bold">
+              Submit Answer <i class="bi bi-arrow-right ms-1"></i>
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+
+{% block title %}Turn Your Project Into Interview Confidence{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section text-center mb-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-9">
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-semibold mb-3">
+          <i class="bi bi-stars me-1"></i> Purpose-Built for College Students & Freshers
+        </span>
+        <h1 class="hero-title mt-2 mb-3">
+          Turn Your Project Into Interview Confidence
+        </h1>
+        <p class="hero-subtitle mb-4 px-md-4">
+          Enter your project details, practice realistic technical questions, handle tough interviewer follow-ups, and discover what you actually need to learn before walking into your placement interview.
+        </p>
+        <div class="d-flex flex-wrap justify-content-center gap-3">
+          <a href="{{ url_for('projects.create_project') }}" class="btn btn-primary btn-lg shadow-sm">
+            <i class="bi bi-play-circle me-1"></i> Start Preparing
+          </a>
+          <a href="#how-it-works" class="btn btn-outline-secondary btn-lg">
+            <i class="bi bi-info-circle me-1"></i> See How It Works
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- The Problem Section -->
+<section class="container py-4 mb-5">
+  <div class="card bg-white border-0 shadow-sm p-4 p-md-5">
+    <div class="row align-items-center">
+      <div class="col-lg-6 mb-4 mb-lg-0">
+        <span class="text-danger fw-bold text-uppercase small tracking-wide">The Real Problem</span>
+        <h2 class="fw-bold mt-2 mb-3">
+          "I have 3 projects on my resume, but I freeze when the interviewer probes."
+        </h2>
+        <p class="text-secondary leading-relaxed">
+          Thousands of engineering students put frameworks, databases, and AI models on their resumes without realizing interviewers don't test memory &mdash; they test <strong>depth, architectural rationale, and edge cases</strong>.
+        </p>
+        <div class="vstack gap-3 mt-3">
+          <div class="d-flex align-items-start">
+            <i class="bi bi-x-circle-fill text-danger fs-5 me-3 mt-1"></i>
+            <div>
+              <strong>Superficial Answers:</strong> Saying <em>"I used Flask because it's lightweight"</em> triggers immediate interviewer follow-ups that expose gaps.
+            </div>
+          </div>
+          <div class="d-flex align-items-start">
+            <i class="bi bi-x-circle-fill text-danger fs-5 me-3 mt-1"></i>
+            <div>
+              <strong>Over-Claiming Traps:</strong> Listing complex neural networks when you only ran a pre-trained script invites brutal math questions.
+            </div>
+          </div>
+          <div class="d-flex align-items-start">
+            <i class="bi bi-x-circle-fill text-danger fs-5 me-3 mt-1"></i>
+            <div>
+              <strong>No Trade-off Awareness:</strong> Unable to explain <em>"Why MySQL over MongoDB?"</em> or <em>"What happens if 10,000 users hit it simultaneously?"</em>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="p-4 bg-light rounded-4 border">
+          <div class="d-flex align-items-center mb-3">
+            <div class="badge bg-danger me-2">Interview Reality Check</div>
+            <small class="text-muted">A typical campus placement trap</small>
+          </div>
+          <div class="p-3 bg-white rounded-3 border mb-3 shadow-sm">
+            <div class="fw-bold text-primary small mb-1"><i class="bi bi-person-badge me-1"></i> Interviewer:</div>
+            <div class="text-dark">"I see you implemented FaceNet and MySQL for attendance. How do you prevent duplicate records if the student stands in front of the camera for 10 seconds?"</div>
+          </div>
+          <div class="p-3 bg-danger-subtle text-danger rounded-3 border border-danger-subtle mb-3">
+            <div class="fw-bold small mb-1"><i class="bi bi-person me-1"></i> Unprepared Candidate:</div>
+            <div>"Uh... we just inserted into MySQL using Python."</div>
+          </div>
+          <div class="p-3 bg-success-subtle text-success rounded-3 border border-success-subtle">
+            <div class="fw-bold small mb-1"><i class="bi bi-check2-circle me-1"></i> Trainer-Trained Candidate:</div>
+            <div>"We created a composite unique index on <code>(student_id, date)</code> with an insert debounce check, catching integrity errors at the database layer."</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works Section -->
+<section id="how-it-works" class="container py-4 mb-5">
+  <div class="text-center mb-5">
+    <span class="text-primary fw-bold text-uppercase small">Structured Journey</span>
+    <h2 class="fw-bold mt-2">From Project Details to Interview Mastery</h2>
+    <p class="text-secondary">A pedagogical learning pipeline built specifically to help you understand and defend your work.</p>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="card h-100 card-hover p-4">
+        <div class="fs-1 text-primary mb-3"><i class="bi bi-1-circle"></i></div>
+        <h5 class="fw-bold">Input Your Project</h5>
+        <p class="text-secondary small">
+          Enter your project name, technologies, description, and your exact role. Add features or algorithms if you want deeper questions.
+        </p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card h-100 card-hover p-4">
+        <div class="fs-1 text-primary mb-3"><i class="bi bi-2-circle"></i></div>
+        <h5 class="fw-bold">Anti-Hallucination Analysis</h5>
+        <p class="text-secondary small">
+          Our engine extracts 5 distinct explanation tiers (30s, 1m, 2m, technical, simple), flags resume risk areas, and identifies missing assumptions.
+        </p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card h-100 card-hover p-4">
+        <div class="fs-1 text-primary mb-3"><i class="bi bi-3-circle"></i></div>
+        <h5 class="fw-bold">Category-Based Questions</h5>
+        <p class="text-secondary small">
+          Explore Basic, Technology-Specific, "Why/Trade-off", Real-World Scenario, and Probing Follow-Up questions with expected answer criteria.
+        </p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card h-100 card-hover p-4">
+        <div class="fs-1 text-primary mb-3"><i class="bi bi-4-circle"></i></div>
+        <h5 class="fw-bold">Concept Learning Mode</h5>
+        <p class="text-secondary small">
+          Master the underlying principles: Definitions, why they're used, mechanics, concrete examples, and likely interview questions.
+        </p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card h-100 card-hover p-4">
+        <div class="fs-1 text-primary mb-3"><i class="bi bi-5-circle"></i></div>
+        <h5 class="fw-bold">Dynamic Mock Interview</h5>
+        <p class="text-secondary small">
+          Type your answers in a realistic interview simulator. Receive multi-dimensional scoring (Clarity, Technical, Completeness) and direct follow-ups.
+        </p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card h-100 card-hover p-4">
+        <div class="fs-1 text-primary mb-3"><i class="bi bi-6-circle"></i></div>
+        <h5 class="fw-bold">Readiness Report & Order</h5>
+        <p class="text-secondary small">
+          Get a synthesized evaluation of your strengths, gaps, interview traps, and a recommended 4-step preparation order before your interview.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Example Interview Walkthrough Section -->
+<section id="example-interview" class="container py-4 mb-5">
+  <div class="card bg-dark text-white p-4 p-md-5 rounded-4 shadow">
+    <div class="row align-items-center">
+      <div class="col-lg-5 mb-4 mb-lg-0">
+        <span class="badge bg-warning text-dark mb-2">Live Interview Simulator</span>
+        <h3 class="fw-bold">Experience What a Real Interview Feels Like</h3>
+        <p class="text-light opacity-75 small">
+          The AI Interviewer doesn't just evaluate your answer &mdash; it adapts. If you give a strong answer, it increases the difficulty. If you give a vague answer, it challenges your claims.
+        </p>
+        <div class="mt-4">
+          <a href="{{ url_for('projects.create_project') }}" class="btn btn-light fw-semibold">
+            Try It With Your Project
+          </a>
+        </div>
+      </div>
+      <div class="col-lg-7">
+        <div class="bg-black bg-opacity-50 p-4 rounded-3 border border-secondary">
+          <div class="d-flex align-items-center justify-content-between border-bottom border-secondary pb-2 mb-3">
+            <span class="small text-info"><i class="bi bi-cpu me-1"></i> AI Interviewer: Question 2 of 5</span>
+            <span class="badge bg-primary">Technical &bull; Intermediate</span>
+          </div>
+          <div class="mb-3">
+            <strong class="text-white">"Why did you choose Flask over Django or FastAPI for your backend?"</strong>
+          </div>
+          <div class="p-3 bg-dark rounded border border-secondary mb-3 small">
+            <span class="text-secondary">Your Answer:</span><br>
+            <span class="text-light">"I chose Flask because our project is a lightweight REST API that primarily handles frame verification. We didn't need Django's built-in admin or heavyweight ORM overhead."</span>
+          </div>
+          <div class="p-3 bg-primary bg-opacity-10 border border-primary rounded small">
+            <div class="text-info fw-bold mb-1"><i class="bi bi-arrow-return-right me-1"></i> AI Follow-up (Adaptive Difficulty):</div>
+            <div class="text-white">"Good point on overhead. Since Flask's dev server is single-threaded, how did you handle concurrent verification requests without blocking worker threads?"</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Why It Is Different Section -->
+<section id="features" class="container py-4 mb-5">
+  <div class="text-center mb-5">
+    <span class="text-primary fw-bold text-uppercase small">Pedagogical Philosophy</span>
+    <h2 class="fw-bold mt-2">Why This Is Different</h2>
+    <p class="text-secondary">Most AI tools just spit out 50 generic questions. We build interview competence.</p>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="p-4 bg-white rounded-3 border h-100">
+        <div class="text-primary fs-3 mb-2"><i class="bi bi-shield-lock"></i></div>
+        <h5 class="fw-bold">Strict Anti-Hallucination</h5>
+        <p class="text-secondary small">
+          We never tell you <em>"You implemented X"</em> unless you wrote it. If details are missing, we explicitly warn you: <em>"An interviewer will ask about this, so verify it before claiming it on your resume."</em>
+        </p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="p-4 bg-white rounded-3 border h-100">
+        <div class="text-primary fs-3 mb-2"><i class="bi bi-exclamation-triangle"></i></div>
+        <h5 class="fw-bold">Resume Risk Detection</h5>
+        <p class="text-secondary small">
+          Detects dangerous resume buzzwords (like listing 5 advanced models without training experience) and gives you the exact questions interviewers will use to trap you.
+        </p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="p-4 bg-white rounded-3 border h-100">
+        <div class="text-primary fs-3 mb-2"><i class="bi bi-bar-chart-steps"></i></div>
+        <h5 class="fw-bold">Adaptive Follow-up Engine</h5>
+        <p class="text-secondary small">
+          Just like a real interviewer, the platform probes your responses dynamically. You can't just give a rehearsed 1-liner and escape.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Recent Projects Section (if any exist) -->
+{% if recent_projects %}
+<section class="container py-4 mb-5">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fw-bold mb-0">Your Recent Projects</h4>
+    <a href="{{ url_for('projects.create_project') }}" class="btn btn-sm btn-outline-primary">
+      <i class="bi bi-plus-lg"></i> Add Another Project
+    </a>
+  </div>
+  <div class="row g-3">
+    {% for proj in recent_projects %}
+      <div class="col-md-4">
+        <div class="card h-100 card-hover p-3">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <h6 class="fw-bold mb-0 text-truncate">{{ proj.name }}</h6>
+            <span class="badge bg-light text-dark border">{{ proj.prep_stats.readiness_percent }}% Ready</span>
+          </div>
+          <p class="text-secondary small text-truncate mb-2">{{ proj.technologies }}</p>
+          <div class="mt-auto pt-2 border-top d-flex justify-content-between align-items-center">
+            <small class="text-muted">{{ proj.questions.count() }} Questions</small>
+            <a href="{{ url_for('projects.dashboard', project_id=proj.id) }}" class="btn btn-sm btn-primary">
+              Open Dashboard &rarr;
+            </a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<!-- Call to Action -->
+<section class="container text-center py-5 mb-4">
+  <div class="bg-primary text-white p-5 rounded-4 shadow">
+    <h2 class="fw-bold mb-3">Ready to Defend Your Projects With Confidence?</h2>
+    <p class="lead opacity-90 mb-4">
+      Stop dreading technical interviews. Take 2 minutes to enter your project and start practicing right now.
+    </p>
+    <a href="{{ url_for('projects.create_project') }}" class="btn btn-light btn-lg px-4 fw-bold text-primary">
+      <i class="bi bi-lightning-charge-fill me-1"></i> Start Interview Preparation Free
+    </a>
+  </div>
+</section>
+{% endblock %}
