@@ -36,11 +36,35 @@ def test_project_creation_validation_missing_required(client):
     response = client.post("/projects/new", data={
         "name": "",
         "description": "",
-        "technologies": "",
         "role": ""
     })
     assert response.status_code == 200
-    assert b"Please provide at least Project Name, Description, Technologies, and your Role." in response.data
+    assert b"Please provide at least Project Name, Description, and your Role / Contribution." in response.data
+
+def test_short_3field_project_submission_and_inference(client):
+    # Only 3 required fields submitted by user
+    response = client.post("/projects/new", data={
+        "name": "Smart Campus Navigator",
+        "description": "An indoor positioning Android application and Flask backend for university campuses.",
+        "role": "Lead Android & Backend Developer"
+    }, follow_redirects=True)
+
+    assert response.status_code == 200
+    assert b"Smart Campus Navigator" in response.data
+    assert b"Auto-Extracted Stack" in response.data
+    assert b"Confirmed from Input" in response.data
+    assert b"Inferred / Likely" in response.data
+    assert b"Must Verify" in response.data
+
+    # Check project in DB
+    project = Project.query.filter_by(name="Smart Campus Navigator").first()
+    assert project is not None
+    assert project.technologies is not None
+    assert len(project.technologies) > 0
+    assert "confirmed_details" in project.analysis
+    assert "inferred_details" in project.analysis
+    assert "items_to_verify" in project.analysis
+    assert project.questions.count() >= 5
 
 def test_404_error_page(client):
     response = client.get("/non-existent-page-xyz")

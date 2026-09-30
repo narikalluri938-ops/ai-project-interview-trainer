@@ -58,5 +58,13 @@ def analyze_project(project: Project) -> Dict[str, Any]:
 
     # Save to project
     project.analysis = data
+    if not project.technologies:
+        inferred = data.get("inferred_technologies") or data.get("inferred_details", {}).get("technologies")
+        if inferred:
+            if isinstance(inferred, list):
+                project.technologies = ", ".join(inferred)
+            else:
+                project.technologies = str(inferred)
+
     db.session.commit()
     return data

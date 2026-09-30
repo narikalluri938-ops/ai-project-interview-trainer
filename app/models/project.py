@@ -8,7 +8,7 @@ class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), nullable=False)
     description = db.Column(db.Text, nullable=False)
-    technologies = db.Column(db.String(300), nullable=False)
+    technologies = db.Column(db.String(300), nullable=True)
     role = db.Column(db.String(200), nullable=False)
     
     # Optional fields
@@ -58,6 +58,22 @@ class Project(db.Model):
     @property
     def learning_topics(self):
         return self.analysis.get("learning_topics", [])
+
+    @property
+    def confirmed_details(self):
+        return self.analysis.get("confirmed_details", {
+            "name": self.name,
+            "description": self.description,
+            "role": self.role
+        })
+
+    @property
+    def inferred_details(self):
+        return self.analysis.get("inferred_details", {})
+
+    @property
+    def items_to_verify(self):
+        return self.analysis.get("items_to_verify", self.analysis.get("unstated_assumptions", []))
 
     @property
     def prep_stats(self):

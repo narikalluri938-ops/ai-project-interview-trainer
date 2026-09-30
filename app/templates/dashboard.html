@@ -14,6 +14,9 @@
       </div>
       <p class="text-secondary small mb-0">
         <i class="bi bi-stack me-1"></i> <strong>Stack:</strong> {{ project.technologies }}
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle ms-1">
+          <i class="bi bi-stars"></i> Auto-Extracted Stack
+        </span>
       </p>
     </div>
     <div class="d-flex flex-wrap gap-2">
@@ -65,7 +68,7 @@
     </li>
     <li class="nav-item" role="presentation">
       <button class="nav-link fw-semibold" id="architecture-tab" data-bs-toggle="pill" data-bs-target="#architecture" type="button" role="tab">
-        <i class="bi bi-diagram-3 me-1"></i> Architecture & Unstated Gaps
+        <i class="bi bi-diagram-3 me-1"></i> Architecture & Intelligence
       </button>
     </li>
     <li class="nav-item" role="presentation">
@@ -158,43 +161,147 @@
       </div>
     </div>
 
-    <!-- 2. ARCHITECTURE & UNSTATED GAPS TAB -->
+    <!-- 2. ARCHITECTURE & INTELLIGENCE TAB (Confirmed vs Inferred vs Verify) -->
     <div class="tab-pane fade" id="architecture" role="tabpanel">
-      <div class="row g-4">
-        <div class="col-lg-7">
-          <div class="card p-4 border h-100">
-            <h5 class="fw-bold mb-3"><i class="bi bi-diagram-3 text-primary me-2"></i>Inferred System Architecture</h5>
-            <div class="p-3 bg-light rounded border mb-3">
-              <code>{{ project.analysis.get('architecture_summary', 'Standard 3-Tier Layered Architecture') }}</code>
-            </div>
-            <h6 class="fw-bold small text-uppercase text-secondary">Core Problem Being Solved:</h6>
-            <p class="text-secondary small">{{ project.analysis.get('problem_solved', project.description) }}</p>
+      
+      <!-- Anti-Hallucination Notice Banner -->
+      <div class="alert alert-light border d-flex align-items-center gap-3 mb-4 p-3 bg-white shadow-sm">
+        <i class="bi bi-shield-check text-success fs-3"></i>
+        <div class="small">
+          <strong class="text-dark">Anti-Hallucination Intelligence Framework:</strong>
+          <span class="text-secondary d-block mt-1">
+            We explicitly separate what you stated (<span class="text-success fw-semibold">Confirmed</span>) from what our AI inferred (<span class="text-primary fw-semibold">Inferred / Likely</span>), and what technical decisions you <span class="text-warning-emphasis fw-semibold">Must Verify</span> before entering an interview.
+          </span>
+        </div>
+      </div>
 
-            <h6 class="fw-bold small text-uppercase text-secondary mt-3">Project Objective:</h6>
-            <p class="text-secondary small mb-0">{{ project.analysis.get('objective', project.name) }}</p>
+      <div class="row g-4 mb-4">
+        
+        <!-- COLUMN 1: CONFIRMED FROM INPUT -->
+        <div class="col-lg-4">
+          <div class="card h-100 p-4 border border-success-subtle bg-success-subtle bg-opacity-10 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="badge bg-success text-white">
+                <i class="bi bi-check-circle me-1"></i> Confirmed from Input
+              </span>
+              <small class="text-success fw-semibold">100% Stated Facts</small>
+            </div>
+
+            <div class="mb-3">
+              <span class="fw-bold small text-uppercase text-secondary d-block mb-1">Project Name:</span>
+              <div class="fw-semibold text-dark">{{ project.name }}</div>
+            </div>
+
+            <div class="mb-3">
+              <span class="fw-bold small text-uppercase text-secondary d-block mb-1">Stated Role & Contribution:</span>
+              <div class="p-2 bg-white rounded border small text-dark">{{ project.role }}</div>
+            </div>
+
+            <div>
+              <span class="fw-bold small text-uppercase text-secondary d-block mb-1">Core Problem Described:</span>
+              <div class="p-2 bg-white rounded border small text-secondary leading-relaxed">{{ project.description }}</div>
+            </div>
           </div>
         </div>
 
-        <div class="col-lg-5">
-          <div class="card p-4 border h-100 border-warning-subtle bg-warning-subtle bg-opacity-25">
-            <h5 class="fw-bold text-dark mb-2">
-              <i class="bi bi-shield-exclamation text-warning me-2"></i>Unstated Assumptions & Gaps
-            </h5>
+        <!-- COLUMN 2: INFERRED / LIKELY BY AI -->
+        <div class="col-lg-4">
+          <div class="card h-100 p-4 border border-primary-subtle bg-primary-subtle bg-opacity-10 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="badge bg-primary">
+                <i class="bi bi-stars me-1"></i> Inferred / Likely
+              </span>
+              <small class="text-primary fw-semibold">AI Deductions</small>
+            </div>
+
+            <div class="mb-3">
+              <span class="fw-bold small text-uppercase text-secondary d-block mb-1">Inferred Tech Stack:</span>
+              <div class="d-flex flex-wrap gap-1">
+                {% for t in project.technologies.split(',') %}
+                  <span class="badge bg-white text-dark border">{{ t.strip() }}</span>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <span class="fw-bold small text-uppercase text-secondary d-block mb-1">Probable Architecture:</span>
+              <div class="p-2 bg-white rounded border small text-dark font-monospace">
+                {{ project.analysis.get('architecture_summary', 'Client Layer -> Backend Service -> Relational Storage') }}
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <span class="fw-bold small text-uppercase text-secondary d-block mb-1">Implied Database / Storage:</span>
+              <div class="p-2 bg-white rounded border small text-dark">
+                {{ project.inferred_details.get('database', project.database or 'Relational Database (e.g. MySQL/PostgreSQL/SQLite)') }}
+              </div>
+            </div>
+
+            {% if project.inferred_details.get('algorithms') %}
+              <div>
+                <span class="fw-bold small text-uppercase text-secondary d-block mb-1">Relevant Algorithms / Techniques:</span>
+                <ul class="list-unstyled mb-0 small ps-1">
+                  {% for alg in project.inferred_details.get('algorithms', []) %}
+                    <li class="mb-1"><i class="bi bi-cpu text-primary me-1"></i> {{ alg }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- COLUMN 3: INFORMATION TO VERIFY -->
+        <div class="col-lg-4">
+          <div class="card h-100 p-4 border border-warning-subtle bg-warning-subtle bg-opacity-15 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="badge bg-warning text-dark">
+                <i class="bi bi-shield-exclamation me-1"></i> Must Verify
+              </span>
+              <small class="text-warning-emphasis fw-semibold">Interview Defense</small>
+            </div>
+
+            <h6 class="fw-bold small text-uppercase text-secondary mb-2">Unstated Assumptions & Gaps to Verify:</h6>
             <p class="text-secondary small mb-3">
-              Items not specified in your project input. Interviewers WILL ask about these, so prepare your answers!
+              Details interviewers will interrogate you on. Verify these exact decisions in your actual codebase before claiming them:
             </p>
+
             <ul class="list-group list-group-flush bg-transparent small">
-              {% for gap in project.analysis.get('unstated_assumptions', []) %}
+              {% for item in project.items_to_verify %}
                 <li class="list-group-item bg-transparent px-0 text-dark">
-                  <i class="bi bi-arrow-right-short text-warning fs-5 align-middle"></i> {{ gap }}
+                  <i class="bi bi-arrow-right-short text-warning-emphasis fs-5 align-middle"></i> {{ item }}
                 </li>
               {% else %}
-                <li class="list-group-item bg-transparent px-0 text-muted">No obvious omissions detected.</li>
+                {% for gap in project.analysis.get('unstated_assumptions', []) %}
+                  <li class="list-group-item bg-transparent px-0 text-dark">
+                    <i class="bi bi-arrow-right-short text-warning-emphasis fs-5 align-middle"></i> {{ gap }}
+                  </li>
+                {% endfor %}
               {% endfor %}
             </ul>
           </div>
         </div>
+
       </div>
+
+      <!-- Additional Deep Architectural Context -->
+      <div class="card p-4 border bg-white shadow-sm">
+        <h6 class="fw-bold mb-3"><i class="bi bi-diagram-2 text-primary me-2"></i>Full System Execution Flow</h6>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="p-3 bg-light rounded border">
+              <span class="fw-bold small text-uppercase text-secondary d-block mb-1">Problem Being Solved:</span>
+              <p class="text-secondary small mb-0">{{ project.analysis.get('problem_solved', project.description) }}</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="p-3 bg-light rounded border">
+              <span class="fw-bold small text-uppercase text-secondary d-block mb-1">Project Technical Objective:</span>
+              <p class="text-secondary small mb-0">{{ project.analysis.get('objective', project.name) }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <!-- 3. RESUME RISKS TAB -->

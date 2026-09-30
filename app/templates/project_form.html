@@ -1,159 +1,92 @@
 {% extends "base.html" %}
 
-{% block title %}Enter Project Details{% endblock %}
+{% block title %}Enter Project Details - AI Project Interview Trainer{% endblock %}
 
 {% block content %}
-<div class="container py-3">
+<div class="container py-4">
   <div class="row justify-content-center">
-    <div class="col-lg-9">
+    <div class="col-lg-8">
       
-      <!-- Header with Sample Autofill Button -->
-      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+      <!-- Header with Clear Purpose and Sample Autofill -->
+      <div class="text-center mb-4">
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-semibold mb-2">
+          <i class="bi bi-stars me-1"></i> Quick 3-Field Submission
+        </span>
+        <h2 class="fw-bold mb-2">Tell us what you built. We'll prepare you to explain and defend it in an interview.</h2>
+        <p class="text-secondary mb-3">
+          Enter just 3 essential details from your resume. Our AI automatically extracts your tech stack, system architecture, database design, and interview risk areas.
+        </p>
         <div>
-          <h2 class="fw-bold mb-1">Enter Your Project Information</h2>
-          <p class="text-secondary small mb-0">
-            Tell us about what you built. Our AI will analyze your architecture, flag resume risks, and generate technical questions.
-          </p>
-        </div>
-        <div>
-          <button type="button" id="btn-fill-sample" class="btn btn-outline-primary d-inline-flex align-items-center shadow-sm">
-            <i class="bi bi-magic me-1"></i> Fill Sample: Face Recognition System
+          <button type="button" id="btn-fill-sample" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center shadow-sm">
+            <i class="bi bi-magic me-1"></i> Fill Sample: Face Recognition Attendance System
           </button>
         </div>
       </div>
 
-      <div class="card p-4 p-md-5 bg-white border shadow-sm">
-        <form method="POST" action="{{ url_for('projects.create_project') }}">
+      <div class="card p-4 p-md-5 bg-white border shadow-sm rounded-4">
+        <form method="POST" action="{{ url_for('projects.create_project') }}" id="project-entry-form">
 
-          <!-- REQUIRED SECTION -->
-          <div class="mb-4 pb-3 border-bottom">
-            <h5 class="fw-bold text-primary mb-3">
-              <i class="bi bi-check-circle me-1"></i> Core Project Details (Required)
-            </h5>
-
-            <div class="mb-3">
-              <label for="field-name" class="form-label fw-semibold">
-                Project Name <span class="text-danger">*</span>
-              </label>
-              <input type="text" class="form-control form-control-lg" id="field-name" name="name" 
-                     placeholder="e.g. Face Recognition Attendance System" 
-                     value="{{ form_data.get('name', '') }}" required maxlength="150">
-              <div class="form-text">Give the title exactly as written on your resume.</div>
-            </div>
-
-            <div class="mb-3">
-              <label for="field-technologies" class="form-label fw-semibold">
-                Technologies Used <span class="text-danger">*</span>
-              </label>
-              <input type="text" class="form-control" id="field-technologies" name="technologies" 
-                     placeholder="e.g. Python, OpenCV, Flask, MySQL, NumPy" 
-                     value="{{ form_data.get('technologies', '') }}" required maxlength="300">
-              <div class="form-text">Comma-separated list of programming languages, frameworks, libraries, and databases.</div>
-            </div>
-
-            <div class="mb-3">
-              <label for="field-role" class="form-label fw-semibold">
-                Your Role in the Project <span class="text-danger">*</span>
-              </label>
-              <input type="text" class="form-control" id="field-role" name="role" 
-                     placeholder="e.g. Backend developer and face recognition module engineer" 
-                     value="{{ form_data.get('role', '') }}" required maxlength="200">
-              <div class="form-text">What modules or responsibilities were specifically yours?</div>
-            </div>
-
-            <div class="mb-3">
-              <label for="field-description" class="form-label fw-semibold">
-                Project Description <span class="text-danger">*</span>
-              </label>
-              <textarea class="form-control" id="field-description" name="description" rows="3" 
-                        placeholder="e.g. An AI-based attendance system that identifies students using facial recognition from video streams and automatically records timestamped attendance into a database."
-                        required maxlength="3000">{{ form_data.get('description', '') }}</textarea>
-              <div class="form-text">Explain what the project does and the problem it solves.</div>
+          <!-- 1. PROJECT NAME -->
+          <div class="mb-4">
+            <label for="field-name" class="form-label fw-bold d-flex justify-content-between align-items-center">
+              <span>1. Project Name <span class="text-danger">*</span></span>
+              <span class="badge bg-light text-secondary border">Required</span>
+            </label>
+            <input type="text" class="form-control form-control-lg" id="field-name" name="name" 
+                   placeholder="e.g. Face Recognition Attendance System" 
+                   value="{{ form_data.get('name', '') }}" required maxlength="150">
+            <div class="form-text text-secondary mt-1">
+              <i class="bi bi-info-circle me-1"></i> The project title exactly as written on the resume.
             </div>
           </div>
 
-          <!-- OPTIONAL SECTION -->
+          <!-- 2. PROJECT DESCRIPTION -->
           <div class="mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h5 class="fw-bold text-secondary mb-0">
-                <i class="bi bi-sliders me-1"></i> Technical & Architectural Specifics (Optional but Recommended)
-              </h5>
-              <span class="badge bg-light text-secondary border">Fills in gaps for deeper questions</span>
+            <label for="field-description" class="form-label fw-bold d-flex justify-content-between align-items-center">
+              <span>2. Project Description <span class="text-danger">*</span></span>
+              <span class="badge bg-light text-secondary border">Required</span>
+            </label>
+            <textarea class="form-control" id="field-description" name="description" rows="4" 
+                      placeholder="e.g. An automated AI-driven attendance recording system that captures classroom video feeds, detects faces in real-time, matches them against registered student embeddings, and logs timestamped attendance into a database with duplicate-prevention constraints."
+                      required maxlength="3000">{{ form_data.get('description', '') }}</textarea>
+            <div class="d-flex justify-content-between align-items-center form-text text-secondary mt-1">
+              <span><i class="bi bi-info-circle me-1"></i> A simple description of what the project does and what problem it solves.</span>
+              <span id="field-description-count" class="text-muted small"></span>
             </div>
+          </div>
 
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label for="field-features" class="form-label fw-semibold small">Key Features</label>
-                <textarea class="form-control" id="field-features" name="features" rows="2" 
-                          placeholder="e.g. Student registration, real-time video stream detection, duplicate attendance prevention, exportable CSV reports">{{ form_data.get('features', '') }}</textarea>
-              </div>
+          <!-- 3. YOUR ROLE / CONTRIBUTION -->
+          <div class="mb-4">
+            <label for="field-role" class="form-label fw-bold d-flex justify-content-between align-items-center">
+              <span>3. Your Role / Contribution <span class="text-danger">*</span></span>
+              <span class="badge bg-light text-secondary border">Required</span>
+            </label>
+            <textarea class="form-control" id="field-role" name="role" rows="3" 
+                      placeholder="e.g. Backend developer and face recognition module engineer — built the REST API endpoints, integrated camera video capture and facial recognition pipeline, and designed the database schema."
+                      required maxlength="300">{{ form_data.get('role', '') }}</textarea>
+            <div class="d-flex justify-content-between align-items-center form-text text-secondary mt-1">
+              <span><i class="bi bi-info-circle me-1"></i> What you personally worked on or contributed to.</span>
+              <span id="field-role-count" class="text-muted small"></span>
+            </div>
+          </div>
 
-              <div class="col-md-6">
-                <label for="field-algorithms" class="form-label fw-semibold small">Algorithms / AI Models Used</label>
-                <textarea class="form-control" id="field-algorithms" name="algorithms" rows="2" 
-                          placeholder="e.g. Haar Cascades for face detection, 128-d deep embeddings with Euclidean distance for matching">{{ form_data.get('algorithms', '') }}</textarea>
-              </div>
-
-              <div class="col-md-6">
-                <label for="field-database" class="form-label fw-semibold small">Database & Schema Design</label>
-                <input type="text" class="form-control" id="field-database" name="database" 
-                       placeholder="e.g. MySQL with students, classes, and attendance_logs tables"
-                       value="{{ form_data.get('database', '') }}">
-              </div>
-
-              <div class="col-md-6">
-                <label for="field-apis" class="form-label fw-semibold small">APIs & Integrations</label>
-                <input type="text" class="form-control" id="field-apis" name="apis" 
-                       placeholder="e.g. RESTful JSON endpoints in Flask: /api/verify, /api/report"
-                       value="{{ form_data.get('apis', '') }}">
-              </div>
-
-              <div class="col-md-6">
-                <label for="field-challenges" class="form-label fw-semibold small">Challenges Faced & Solved</label>
-                <textarea class="form-control" id="field-challenges" name="challenges" rows="2" 
-                          placeholder="e.g. Handling poor lighting conditions, reducing inference latency on CPU, resolving duplicate write race conditions">{{ form_data.get('challenges', '') }}</textarea>
-              </div>
-
-              <div class="col-md-6">
-                <label for="field-individual_contribution" class="form-label fw-semibold small">Your Individual Contribution</label>
-                <textarea class="form-control" id="field-individual_contribution" name="individual_contribution" rows="2" 
-                          placeholder="e.g. Built the complete Flask API and MySQL schema; my partner designed the frontend dashboard">{{ form_data.get('individual_contribution', '') }}</textarea>
-              </div>
-
-              <div class="col-md-4">
-                <label for="field-deployment" class="form-label fw-semibold small">Deployment & Hosting</label>
-                <input type="text" class="form-control" id="field-deployment" name="deployment" 
-                       placeholder="e.g. Local Flask WSGI with Gunicorn, Docker, or AWS EC2"
-                       value="{{ form_data.get('deployment', '') }}">
-              </div>
-
-              <div class="col-md-4">
-                <label for="field-team_size" class="form-label fw-semibold small">Team Size</label>
-                <input type="text" class="form-control" id="field-team_size" name="team_size" 
-                       placeholder="e.g. 2 members or Solo project"
-                       value="{{ form_data.get('team_size', '') }}">
-              </div>
-
-              <div class="col-md-4">
-                <label for="field-github_url" class="form-label fw-semibold small">GitHub Repository URL</label>
-                <input type="url" class="form-control" id="field-github_url" name="github_url" 
-                       placeholder="https://github.com/..."
-                       value="{{ form_data.get('github_url', '') }}">
-              </div>
-
-              <div class="col-12">
-                <label for="field-additional_notes" class="form-label fw-semibold small">Additional Notes</label>
-                <input type="text" class="form-control" id="field-additional_notes" name="additional_notes" 
-                       placeholder="e.g. Final year capstone project presented at college symposium"
-                       value="{{ form_data.get('additional_notes', '') }}">
+          <!-- Anti-Hallucination & AI Inference Info Notice -->
+          <div class="p-3 bg-light rounded-3 border mb-4">
+            <div class="d-flex align-items-start gap-2">
+              <i class="bi bi-shield-check text-primary fs-5 mt-1"></i>
+              <div class="small">
+                <strong class="text-dark">Automated Intelligence & Anti-Hallucination Protection:</strong>
+                <p class="text-secondary mb-0 mt-1">
+                  Our engine automatically deduces your likely tech stack, architecture, database schemas, and technical challenges. In your preparation dashboard, all details are explicitly categorized into <strong>Confirmed from Input</strong>, <strong>Inferred by AI</strong>, and <strong>Items to Verify</strong> before your interview.
+                </p>
               </div>
             </div>
           </div>
 
           <!-- SUBMIT BUTTON -->
-          <div class="d-grid mt-4">
-            <button type="submit" class="btn btn-primary btn-lg py-3 fw-bold shadow-sm">
-              <i class="bi bi-cpu me-2"></i> Generate Interview Preparation
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary btn-lg py-3 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2" id="btn-submit-project">
+              <i class="bi bi-cpu"></i> Analyze My Project
             </button>
           </div>
         </form>

@@ -47,11 +47,37 @@ class MockProvider(AIProvider):
     def _mock_project_analysis(self, prompt: str) -> Dict[str, Any]:
         name = self._extract_field(prompt, "Project Name") or "Technical Project"
         role = self._extract_field(prompt, "Role") or "Software Engineer"
-        tech = self._extract_field(prompt, "Technologies") or "Python, Flask, SQL"
+        tech = self._extract_field(prompt, "Technologies") or ""
         desc = self._extract_field(prompt, "Description") or "A software application."
-        features = self._extract_field(prompt, "Features") or "Core data processing and user interfaces"
-        database = self._extract_field(prompt, "Database") or "Relational Database"
+        features = self._extract_field(prompt, "Features") or ""
+        database = self._extract_field(prompt, "Database") or ""
 
+        # Auto-infer tech and database if not explicitly stated
+        if not tech or tech == "Not specified":
+            text_corpus = f"{name} {desc} {role}".lower()
+            if any(k in text_corpus for k in ["opencv", "face", "vision", "camera", "image"]):
+                tech = "Python, OpenCV, Flask, MySQL, NumPy"
+                database = "MySQL"
+            elif any(k in text_corpus for k in ["cnn", "tumor", "mri", "pytorch", "resnet"]):
+                tech = "Python, PyTorch, CNN, ResNet50, Docker"
+                database = "None"
+            elif any(k in text_corpus for k in ["java", "spring", "bank"]):
+                tech = "Java, Spring Boot, PostgreSQL, Docker"
+                database = "PostgreSQL"
+            elif any(k in text_corpus for k in ["go", "log", "cli", "parser"]):
+                tech = "Go, RegEx, Concurrency, CLI"
+                database = "None"
+            elif any(k in text_corpus for k in ["android", "kotlin", "navigator", "campus"]):
+                tech = "Kotlin, Android SDK, Flask, SQLite"
+                database = "SQLite"
+            elif any(k in text_corpus for k in ["shop", "ecommerce", "cart"]):
+                tech = "JavaScript, Node.js, Express, MongoDB"
+                database = "MongoDB"
+            else:
+                tech = "Python, Flask, Relational Database, REST API"
+                database = "Relational Database"
+
+        tech_list = [t.strip() for t in tech.split(",") if t.strip()]
         tech_lower = tech.lower()
         has_cv = any(k in tech_lower for k in ["opencv", "face", "vision", "image", "cnn"])
         has_flask = "flask" in tech_lower
@@ -83,7 +109,7 @@ class MockProvider(AIProvider):
         )
 
         technical_exp = (
-            f"Architecturally, '{name}' follows a layered modular pattern. Input requests are validated via {tech.split(',')[0].strip()} "
+            f"Architecturally, '{name}' follows a layered modular pattern. Input requests are validated via {tech_list[0] if tech_list else 'REST'} "
             f"controllers before passing data to the business logic layer. For storage, {database if database else 'relational tables'} "
             f"maintain entity relationships with foreign key integrity. If external models or services are invoked, "
             f"pre-processing normalizes input dimensions before computation to prevent runtime memory bloat."
@@ -164,11 +190,54 @@ class MockProvider(AIProvider):
             }
         ]
 
+        confirmed_details = {
+            "project_name": name,
+            "problem_statement": desc,
+            "candidate_role": role,
+            "explicit_contributions": role
+        }
+
+        inferred_details = {
+            "technologies": tech_list,
+            "architecture": f"Client Interface -> Backend Service ({tech_list[0] if tech_list else 'REST API'}) -> {database if database and database != 'Not specified' else 'Relational Storage'}",
+            "database": database if database and database != "Not specified" else ("MySQL / PostgreSQL relational database" if has_sql or not has_cv else "SQLite / Local relational storage"),
+            "features": [
+                f"Core automated processing workflow for {name}",
+                "Input sanitization, parameter validation, and boundary checks",
+                "Persistent status and record tracking with queryable history"
+            ],
+            "algorithms": (
+                ["Haar Cascades / SSD face detection", "128-d deep facial embeddings with Euclidean distance"] if has_cv else
+                ["Convolutional feature extraction", "CrossEntropyLoss with gradient optimization"] if "cnn" in tech_lower else
+                ["B-Tree primary/foreign key indexing", "Atomic transaction isolation (ACID)"]
+            ),
+            "apis": [
+                "RESTful HTTP endpoints for data submission and query retrieval",
+                "JSON payload request/response serialization with HTTP status codes"
+            ],
+            "challenges": [
+                "Handling concurrent request latency and database write race conditions",
+                "Balancing processing overhead with real-time response targets",
+                "Ensuring graceful error handling when inputs are malformed or missing"
+            ]
+        }
+
+        items_to_verify = [
+            f"Confirm the exact database engine and schema design (e.g. {database if database else 'MySQL/PostgreSQL'}) you actually used.",
+            "Verify whether third-party models or packages were pre-trained or trained by you from scratch.",
+            "Prepare your explanation of authentication, authorization, and error handling.",
+            "Clarify your hosting and deployment setup (local WSGI, Docker container, or cloud VM) if asked."
+        ]
+
         return {
             "project_summary": f"'{name}' is a project built with {tech} to solve {desc.rstrip('.')}.",
             "objective": f"Automate tracking and verification with reliable data persistence.",
             "problem_solved": desc,
-            "architecture_summary": f"Client Capture Layer -> Backend API ({tech.split(',')[0].strip()}) -> Storage ({database if database else 'Database'}).",
+            "architecture_summary": f"Client Capture Layer -> Backend API ({tech_list[0] if tech_list else 'Backend'}) -> Storage ({database if database else 'Database'}).",
+            "confirmed_details": confirmed_details,
+            "inferred_details": inferred_details,
+            "items_to_verify": items_to_verify,
+            "inferred_technologies": tech_list,
             "explanations": {
                 "thirty_second": thirty_sec,
                 "one_minute": one_min,
@@ -186,9 +255,31 @@ class MockProvider(AIProvider):
 
     def _mock_question_generation(self, prompt: str) -> Dict[str, Any]:
         name = self._extract_field(prompt, "Project Name") or "this project"
-        tech = self._extract_field(prompt, "Technologies") or "Python, Flask, SQL"
-        database = self._extract_field(prompt, "Database") or "relational database"
+        tech = self._extract_field(prompt, "Technologies") or ""
+        database = self._extract_field(prompt, "Database") or ""
         role = self._extract_field(prompt, "Role") or "Backend Developer"
+        desc = self._extract_field(prompt, "Description") or ""
+
+        # Auto-infer stack if not provided in prompt
+        if not tech or tech == "Not specified":
+            text_corpus = f"{name} {desc} {role} {prompt}".lower()
+            if any(k in text_corpus for k in ["opencv", "face", "vision", "camera"]):
+                tech = "Python, OpenCV, Flask, MySQL, NumPy"
+                database = "MySQL"
+            elif any(k in text_corpus for k in ["cnn", "tumor", "mri", "pytorch"]):
+                tech = "Python, PyTorch, CNN, ResNet50, Docker"
+            elif any(k in text_corpus for k in ["java", "spring"]):
+                tech = "Java, Spring Boot, PostgreSQL, Docker"
+                database = "PostgreSQL"
+            elif any(k in text_corpus for k in ["go", "log"]):
+                tech = "Go, RegEx, Concurrency, CLI"
+            elif any(k in text_corpus for k in ["android", "kotlin", "navigator"]):
+                tech = "Kotlin, Android SDK, Flask, SQLite"
+                database = "SQLite"
+            else:
+                tech = "Python, Flask, SQL"
+                database = "relational database"
+
         tech_lower = tech.lower()
 
         questions = [

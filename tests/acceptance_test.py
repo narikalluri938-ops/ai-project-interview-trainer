@@ -1,10 +1,18 @@
 import re
 import sys
+import pytest
 import requests
 
 BASE_URL = "http://127.0.0.1:5000"
 
 def test_workflow():
+    try:
+        check = requests.get(f"{BASE_URL}/health", timeout=1)
+        if check.status_code != 200:
+            pytest.skip("Live server is not running on http://127.0.0.1:5000")
+    except Exception:
+        pytest.skip("Live server is not running on http://127.0.0.1:5000")
+
     session = requests.Session()
     print("\n--- 1. Testing Landing Page ---")
     r = session.get(f"{BASE_URL}/")
